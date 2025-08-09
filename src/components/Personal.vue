@@ -16,19 +16,19 @@
           <h4>点击“写心记”开始记录</h4>
         </div>
         <div v-else>
-          <div v-for="c in contents" :key="c.id" class="card mb-3">
+          <div v-for="c in contents" :key="c.contentId" class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <span>{{ formatTime(c.time) }}</span>
+              <span>{{ formatTime(c.createTime) }}</span>
               <div class="d-flex gap-2 align-items-center">
                 <select class="form-select form-select-sm w-auto"
-                        @change="updateState(c.id, $event.target.value)">
+                        @change="updateState(c.contentId, $event.target.value)">
                   <option value="public" :selected="c.state==='public'">公开</option>
                   <option value="private" :selected="c.state==='private'">私密</option>
                   <option value="save" :selected="c.state==='save'">草稿</option>
                 </select>
                 <button v-if="c.state==='save'" class="btn btn-sm btn-warning"
                         @click="edit(c)">编辑</button>
-                <button class="btn btn-sm btn-danger" @click="del(c.id)">删除</button>
+                <button class="btn btn-sm btn-danger" @click="del(c.contentId)">删除</button>
               </div>
             </div>
             <div class="card-body">
@@ -85,7 +85,7 @@ const tab = ref('home')
 const contents = ref([])
 const editorRef = ref(null)   // 编辑器实例
 const html = ref('')          // 编辑器内容
-const editingId = ref(null)   // 正在编辑的文章 id
+const editingId = ref(null)   // 正在编辑的文章 contentId
 
 /* ---------------- 编辑器配置 ---------------- */
 const toolbarConfig = {excludeKeys: ['group-video']}
@@ -148,15 +148,15 @@ async function save(state) {
 
 function edit(item) {
   tab.value = 'write'
-  editingId.value = item.id
+  editingId.value = item.contentId
   nextTick(() => {
     html.value = item.content
   })
 }
 
-async function updateState(id, state) {
+async function updateState(contentId, state) {
   try {
-    await apiUpdateState({ id, state })
+    await apiUpdateState({contentId, state })
     ElMessage.success('状态已更新')
     loadContents()
   } catch {
@@ -164,10 +164,10 @@ async function updateState(id, state) {
   }
 }
 
-async function del(id) {
+async function del(contentId) {
   if (!confirm('确定删除这条内容吗？')) return
   try {
-    await deleteContent(id)
+    await deleteContent({contentId})
     ElMessage.success('删除成功')
     loadContents()
   } catch {

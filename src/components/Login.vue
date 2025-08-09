@@ -25,7 +25,7 @@
           </form>
 
           <div class="d-flex flex-column align-items-center mt-3">
-            <button class="btn btn-outline-primary" @click="$router.push('/register')">注册</button>
+            <button class="btn btn-outline-primary" @click="router.push('/register')">注册</button>
           </div>
         </div>
         <div class="col-4"></div>
@@ -37,7 +37,6 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import { login } from '@/api/auth'
 
 const router = useRouter()
@@ -48,12 +47,10 @@ const form = reactive({
 
 const handleLogin = async () => {
   try {
-    const { data: token } = await login(form)
-    localStorage.setItem('token', token)
-    ElMessage.success('登录成功')
-    router.push('/personal')
-  } catch (e) {
-    ElMessage.error(e?.response?.data?.msg || '登录失败')
+    await login(form);
+    router.push('/personal');  // 拦截器已处理token和消息
+  } catch (error) {
+    // 拦截器已显示错误消息，这里可以不做额外处理
   }
 }
 </script>
