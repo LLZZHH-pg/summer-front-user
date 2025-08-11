@@ -29,6 +29,7 @@
                         @click="edit(c)">编辑</button>
                 <button class="btn btn-sm btn-danger" @click="del(c.contentId)">删除</button>
               </div>
+              
             </div>
             <!-- 修改这里：使用只读编辑器展示内容 -->
             <div class="card-body readonly-editor-container" style="min-height: 300px;">
@@ -38,6 +39,10 @@
                 mode="simple"
                 class="readonly-editor"
               />
+            </div>
+            <div class="card-footer d-flex justify-content-end align-items-center">
+              <button class="btn btn-sm btn-success" @click="like(c.contentId)">点赞</button>
+              <span>{{ (c.likes) }}</span>
             </div>
           </div>
         </div>
@@ -81,7 +86,7 @@ import { ref, onMounted, nextTick } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css'
 import { ElMessage } from 'element-plus'
-import { getContents, saveContent, updateState as apiUpdateState, deleteContent } from '@/api/content'
+import { getContents, saveContent, updateState as apiUpdateState, deleteContent ,likeContent} from '@/api/content'
 import { uploadImage} from '@/api/upload'
 
 /* ---------------- 响应式变量 ---------------- */
@@ -243,5 +248,14 @@ async function del(contentId) {
 
 function formatTime(ts) {
   return new Date(ts).toLocaleString('zh-CN')
+}
+
+async function like(contentId) {
+  try {
+    await likeContent({contentId})
+    ElMessage.success('点赞成功')
+  } catch (e) {
+    ElMessage.error('点赞失败')
+  }
 }
 </script>
