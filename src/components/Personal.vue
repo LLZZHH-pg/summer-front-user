@@ -40,18 +40,25 @@
                 class="readonly-editor"
               />
             </div>
-            <div class="card-footer d-flex justify-content-end align-items-center">
-                <div class="form-check">
+            <div class="card-footer d-flex flex-row justify-content-end align-items-center">
+                <div class="input-group d-flex me-2" style="height: 2.5rem;">
+                  <input type="text" class="form-control"v-model="singleComment" placeholder="请输入评论(少于800字)" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                  <button class="btn btn-warning text-white" type="button" id="comment" @click="comment(c.contentId,singleComment)">发布</button>
+                </div>
+                <div class="form-check d-flex flex-row align-items-center p-0 mb-0">
                   <input 
-                    class="form-check-input" 
+                    class="btn-check" 
                     type="checkbox" 
+                    autocomplete="off"
                     :id="'like-' + c.contentId"
                     :checked="c.isLiked"
                     @change="like(c.contentId,$event.target.checked)"
                   >
-                  <label class="form-check-label" :for="'like-' + c.contentId">
+                  <label class="btn btn-success" style="width: 4rem;height: 2.5rem;" :for="'like-' + c.contentId">点赞 </label>
+                  <span class="badge bg-primary rounded-2 ms-2 d-flex justify-content-center align-items-center" style="width: 4rem;height: 2.5rem;">{{ c.likes || 0 }}</span>
+                  <!-- <label class="form-check-label" :for="'like-' + c.contentId">
                     点赞 ({{ c.likes || 0 }})
-                  </label>
+                  </label> -->
                 </div>
             </div>
           </div>
@@ -96,7 +103,7 @@ import { ref, onMounted, nextTick } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css'
 import { ElMessage } from 'element-plus'
-import { getContents, saveContent, updateState as apiUpdateState, deleteContent ,likeContent} from '@/api/content'
+import { getContents, saveContent, updateState as apiUpdateState, deleteContent ,likeContent,commentContent} from '@/api/content'
 import { uploadImage} from '@/api/upload'
 
 /* ---------------- 响应式变量 ---------------- */
@@ -106,6 +113,8 @@ const editorRef = ref(null)   // 编辑器实例
 const html = ref('')          // 编辑器内容
 const editingId = ref(null)   // 正在编辑的文章 contentId
 const uploadedImages = ref([]) // 存储本次编辑会话上传的图片
+const singleComment = ref('')
+
 
 /* ---------------- 编辑器配置 ---------------- */
 const toolbarConfig = {excludeKeys: ['group-video']}
@@ -281,6 +290,16 @@ async function like(contentId,check_isLiked) {
     }
   } catch (e) {
     ElMessage.error('点赞失败')
+  }
+}
+async function comment(contentId,commentText){
+  if(commentText.length>520) return ElMessage.warning('评论内容过长，少于500字')
+  try{
+    await commentContent({contentId,commentText})
+    ElMessage.success('评论成功')
+    singleComment.value = '' // 清空输入框
+  }catch(e){
+    ElMessage.error('评论失败')
   }
 }
 </script>
