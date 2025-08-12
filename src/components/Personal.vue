@@ -41,8 +41,18 @@
               />
             </div>
             <div class="card-footer d-flex justify-content-end align-items-center">
-              <button class="btn btn-sm btn-success" @click="like(c.contentId)">点赞</button>
-              <span>{{ (c.likes) }}</span>
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    :id="'like-' + c.contentId"
+                    :checked="c.isLiked"
+                    @change="like(c.contentId,$event.target.checked)"
+                  >
+                  <label class="form-check-label" :for="'like-' + c.contentId">
+                    点赞 ({{ c.likes || 0 }})
+                  </label>
+                </div>
             </div>
           </div>
         </div>
@@ -250,10 +260,25 @@ function formatTime(ts) {
   return new Date(ts).toLocaleString('zh-CN')
 }
 
-async function like(contentId) {
+async function like(contentId,check_isLiked) {
   try {
     await likeContent({contentId})
-    ElMessage.success('点赞成功')
+    // 在API调用成功后，直接更新本地数据
+    const content = contents.value.find(c => c.contentId === contentId)
+    if (content) {
+      content.isLiked = check_isLiked
+      if (check_isLiked) {
+        content.likes = (content.likes || 0) + 1
+      } else {
+        content.likes = Math.max((content.likes || 0) - 1, 0)
+      }
+    }
+    if(check_isLiked){
+      ElMessage.success('点赞成功')
+    }
+    else{
+      ElMessage.success('取消成功')
+    }
   } catch (e) {
     ElMessage.error('点赞失败')
   }
