@@ -8,7 +8,8 @@ const instance = axios.create({
 })
 
 instance.interceptors.request.use(cfg => {
-  const rawToken = localStorage.getItem('token');
+  //const rawToken = localStorage.getItem('token');
+  const rawToken = sessionStorage.getItem('token');
   
   // 新增：Token有效性检查
   if (rawToken) {
@@ -19,7 +20,8 @@ instance.interceptors.request.use(cfg => {
     if (!isValidTokenFormat(token)) {
       console.error("无效的Token格式:", token);
       // 清除损坏的Token
-      localStorage.removeItem('token'); 
+      sessionStorage.removeItem('token');
+      // localStorage.removeItem('token'); 
     } else {
       cfg.headers.Authorization = `Bearer ${token}`;
       
@@ -48,7 +50,8 @@ res => {
         console.error("登录返回的Token格式无效:", token);
         ElMessage.error('登录凭证异常，请重试');
       } else {
-        localStorage.setItem('token', token);
+        sessionStorage.setItem('token', token);
+        // localStorage.setItem('token', token);
         console.info("Token存储成功:", token.substring(0, 10) + "...");
         ElMessage.success('登录成功');
       }
@@ -86,8 +89,10 @@ res => {
     if (response?.status === 401) {
       errorMsg = '登录已过期，请重新登录';
       // 精准清除认证数据
-      localStorage.removeItem('token');
-      localStorage.removeItem('userInfo');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('userInfo');
+      // localStorage.removeItem('token');
+      // localStorage.removeItem('userInfo');
       router.push('/login');
     } else if (response?.status === 403) {
       // 尝试获取更详细的错误信息

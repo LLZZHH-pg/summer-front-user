@@ -73,6 +73,7 @@
               </div>
             </div>
           </div>
+            <div class="text-center"><button class="btn btn-outline-secondary" v-if="hasMore" @click="loadMore">加载更多</button></div>
         </div>
       </div>
 
@@ -126,6 +127,10 @@ const editingId = ref(null)   // 正在编辑的文章 contentId
 const uploadedImages = ref([]) // 存储本次编辑会话上传的图片
 const singleComment = ref('')
 
+const page = ref(1);
+const pageSize = 10;
+const hasMore = ref(true)
+const loading = ref(false)
 
 /* ---------------- 编辑器配置 ---------------- */
 const toolbarConfig = {excludeKeys: ['group-video']}
@@ -195,11 +200,27 @@ function handleCreated(editor) {
 
 async function loadContents() {
   try {
-    const res = await getContents()
-    contents.value = Array.isArray(res) ? res : res?.data || []
+    loading.value = true
+    const res = await getContents(page.value, pageSize)
+    // console.log('API响应:', res)
+    if (page.value === 1) {
+      contents.value = res.data || [];
+    } else {
+      contents.value = [...contents.value, ...res.data];
+    }
+      // contents.value = Array.isArray(res) ? res : res?.data || []
+      hasMore.value = res.data.length >= pageSize
   } catch (e) {
     ElMessage.error('加载内容失败')
     contents.value = []
+  }finally {
+    loading.value = false
+  }
+}
+function loadMore() {
+  if (!loading.value) {
+    page.value++;
+    loadContents();
   }
 }
 
@@ -226,6 +247,7 @@ async function save(state) {
     })
     ElMessage.success(editingId.value ? '更新成功' : '发布成功')
     tab.value = 'home'
+    page.value = 1
     loadContents()
     uploadedImages.value = [] // 清空上传记录
   } catch (e) {
@@ -269,6 +291,7 @@ async function del(contentId) {
   try {
     await deleteContent({contentId})
     ElMessage.success('删除成功')
+    page.value = 1
     loadContents()
   } catch {
     ElMessage.error('删除失败')

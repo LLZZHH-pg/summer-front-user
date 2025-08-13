@@ -7,6 +7,10 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 
+if (!sessionStorage.getItem('token') && localStorage.getItem('token')) {
+  sessionStorage.setItem('token', localStorage.getItem('token'));
+}
+
 createApp(App)
   .use(router)
   .use(ElementPlus)

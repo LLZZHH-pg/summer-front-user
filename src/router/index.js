@@ -15,14 +15,14 @@ router.beforeEach((to, from, next) => {
   // 判断路由是否需要登录权限
   if (to.meta.requiresAuth) {
     // 检查本地存储中是否有 token
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token');
     if (token) {
-      next() // 已登录，继续访问
+      next(); // 已登录，继续访问
     } else {
-      next('/login') // 未登录，跳转到登录页
+      next('/login'); // 未登录，跳转到登录页
     }
   } else {
-    next() // 不需要登录的路由直接放行
+    next(); // 不需要登录的路由直接放行
   }
 })
 
