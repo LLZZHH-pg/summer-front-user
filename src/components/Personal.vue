@@ -66,7 +66,7 @@
                 <div v-for="comment in c.comments" :key="comment.commentId" class="border-bottom pb-2 mb-2">
                   <div class="d-flex justify-content-between align-items-start">
                     <div class="flex-grow-1">
-                      <small class="text-muted">用户ID: {{ comment.userId }}</small>
+                        <small class="text-muted">用户：{{ comment.username || comment.userId }}</small>
                       <div class="mt-1">{{ comment.commentText }}</div>
                     </div>
                     <small class="text-muted">{{ formatTime(comment.createTime) }}</small>
