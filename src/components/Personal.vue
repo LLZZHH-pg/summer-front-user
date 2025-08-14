@@ -6,6 +6,8 @@
               @click="tab = 'home'" style="width: 110px !important;">个人主页</button>
       <button class="nav-link" :class="{ active: tab === 'write' }"
               @click="openWrite">写心记</button>
+      <button class="nav-link" :class="{ active: tab === 'square' }"
+              @click="tab = 'square'">广场</button>
     </div>
 
     <div class="flex-fill p-3 overflow-auto">
@@ -43,8 +45,8 @@
             <div class="card-footer d-flex flex-column align-items-center">
               <div class="d-flex flex-row justify-content-end align-items-center">
                 <div class="input-group d-flex me-2" style="height: 2.5rem;">
-                  <input type="text" class="form-control"v-model="singleComment" placeholder="请输入评论(少于500字)" aria-label="Example text with button addon" aria-describedby="button-addon1">
-                  <button class="btn btn-warning text-white" type="button" id="comment" @click="comment(c.contentId,singleComment)">发布</button>
+                  <input type="text" class="form-control"v-model="singleComment[c.contentId]" placeholder="请输入评论(少于500字)" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                  <button class="btn btn-warning text-white" type="button" id="comment" @click="comment(c.contentId,singleComment[c.contentId])">发布</button>
                 </div>
                 <div class="form-check d-flex flex-row align-items-center p-0 mb-0">
                   <input 
@@ -106,6 +108,11 @@
           @onCreated="handleCreated"
         />
       </div>
+
+      <!-- 广场 -->
+      <div v-if="tab === 'square'">
+        <Square/>
+      </div>
     </div>
   </div>
 </template>
@@ -117,6 +124,7 @@ import '@wangeditor/editor/dist/css/style.css'
 import { ElMessage } from 'element-plus'
 import { getContents, saveContent, updateState as apiUpdateState, deleteContent ,likeContent,commentContent} from '@/api/content'
 import { uploadImage} from '@/api/upload'
+import Square from './Square.vue'
 
 /* ---------------- 响应式变量 ---------------- */
 const tab = ref('home')
@@ -125,7 +133,7 @@ const editorRef = ref(null)   // 编辑器实例
 const html = ref('')          // 编辑器内容
 const editingId = ref(null)   // 正在编辑的文章 contentId
 const uploadedImages = ref([]) // 存储本次编辑会话上传的图片
-const singleComment = ref('')
+const singleComment = ref({})
 
 const page = ref(1);
 const pageSize = 10;
@@ -330,7 +338,7 @@ async function comment(contentId,commentText){
   try{
     await commentContent({contentId,commentText})
     ElMessage.success('评论成功')
-    singleComment.value = '' // 清空输入框
+    singleComment.value[contentId] = '' // 清空输入框
   }catch(e){
     ElMessage.error('评论失败')
   }

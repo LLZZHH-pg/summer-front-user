@@ -3,7 +3,8 @@ const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: () => import('@/components/Login.vue') },
   { path: '/register', component: () => import('@/components/Register.vue') },
-  { path: '/personal', component: () => import('@/components/Personal.vue') ,meta: { requiresAuth: true }}
+  { path: '/personal', component: () => import('@/components/Personal.vue') ,meta: { requiresAuth: true }},
+  { path: '/square', component: () => import('@/components/Square.vue') ,meta: { requiresAuth: true }}
 ]
 const router = createRouter({ 
   history: createWebHistory(), 
